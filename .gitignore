@@ -38,4 +38,5 @@ node_modules/
 ### Database & Local Files ###
 data/
 *.db
+dist/
 
