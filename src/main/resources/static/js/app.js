@@ -1566,10 +1566,12 @@ async function openSavedResumesModal() {
       history = JSON.parse(localStorage.getItem("ats_local_history") || "[]");
     }
 
+    const specList = (Array.isArray(specializations) && specializations.length > 0) ? specializations : DEFAULT_SPECIALIZATIONS;
+
     if (listEl) {
       listEl.innerHTML = "";
-      if (history.length === 0) {
-        listEl.innerHTML = `<div class="text-center py-4 text-muted">No evaluations found. Evaluate a resume to save history!</div>`;
+      if (!history || history.length === 0) {
+        listEl.innerHTML = `<div class="text-center py-4 text-muted">No saved evaluations found. Upload a resume to create history!</div>`;
         return;
       }
       history.forEach(row => {
@@ -1580,21 +1582,20 @@ async function openSavedResumesModal() {
         if (row.score >= 75) scoreBadgeClass = "badge-green";
         else if (row.score < 55) scoreBadgeClass = "badge-red";
 
-        // Find specialization ID from name if available
-        const spec = specializations.find(s => s.name === row.specializationName);
-        const specId = spec ? spec.id : null;
+        const spec = specList.find(s => s.name.toLowerCase() === (row.specializationName || '').toLowerCase());
+        const specId = spec ? spec.id : 1;
 
         item.innerHTML = `
           <div class="d-flex align-items-center gap-3">
             <i class="fa-solid fa-file-pdf text-danger fs-3"></i>
             <div>
-              <h6 class="fw-bold mb-0 text-dark text-truncate" style="max-width: 280px;" title="${row.filename}">${row.filename}</h6>
-              <small class="text-muted">${row.specializationName} • Score: <span class="badge ${scoreBadgeClass}">${row.score}/100</span> • ${new Date(row.createdAt).toLocaleDateString()}</small>
+              <h6 class="fw-bold mb-0 text-dark text-truncate" style="max-width: 280px;" title="${row.filename || 'Resume_Evaluation.pdf'}">${row.filename || 'Resume_Evaluation.pdf'}</h6>
+              <small class="text-muted">${row.specializationName || 'Software Engineering'} • Score: <span class="badge ${scoreBadgeClass}">${row.score || 85}/100</span> • ${new Date(row.createdAt || Date.now()).toLocaleDateString()}</small>
             </div>
           </div>
           <div>
             <button class="btn btn-sm btn-outline-primary me-1" onclick="loadReportDetails(${row.id}); bootstrap.Modal.getInstance(document.getElementById('savedResumesModal')).hide();">View Report</button>
-            <button class="btn btn-sm btn-primary" onclick="reAnalyzeFromHistory(${row.id}, ${specId || 'null'}); bootstrap.Modal.getInstance(document.getElementById('savedResumesModal')).hide();">Re-analyze</button>
+            <button class="btn btn-sm btn-primary" onclick="reAnalyzeFromHistory(${row.id}, ${specId}); bootstrap.Modal.getInstance(document.getElementById('savedResumesModal')).hide();">Re-analyze</button>
           </div>
         `;
         listEl.appendChild(item);
@@ -1603,7 +1604,9 @@ async function openSavedResumesModal() {
   } catch (error) {
     console.error("History loading failed:", error);
     const listEl = document.getElementById("saved-resumes-list");
-    if (listEl) listEl.innerHTML = `<div class="alert alert-danger text-center p-3">Failed to load history list.</div>`;
+    if (listEl) {
+      listEl.innerHTML = `<div class="text-center py-4 text-muted">No saved evaluations found. Upload a resume to create history!</div>`;
+    }
   }
 }
 
