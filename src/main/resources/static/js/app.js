@@ -1335,10 +1335,9 @@ function appendAiMessage(text, role) {
 // Try Sandbox Profile
 window.trySandbox = async function(roleName) {
   // Find the specialization profile with matching name
-  const spec = specializations.find(s => s.name.toLowerCase() === roleName.toLowerCase());
+  let spec = specializations.find(s => s.name.toLowerCase() === roleName.toLowerCase());
   if (!spec) {
-    alert(`Demo profile "${roleName}" is not loaded in specializations. Please ensure the DatabaseSeeder ran.`);
-    return;
+    spec = DEFAULT_SPECIALIZATIONS.find(s => s.name.toLowerCase() === roleName.toLowerCase()) || { id: 1, name: roleName };
   }
   
   // Select the specialization card visually
@@ -1696,5 +1695,36 @@ function saveSettings() {
     if (modal) modal.hide();
   }
 }
+
+// Expose all UI handler functions to window object for inline HTML event handling
+window.initApp = initApp;
+window.showSection = showSection;
+window.selectSpecialization = selectSpecialization;
+window.selectSandboxRole = selectSandboxRole;
+window.trySandbox = trySandbox;
+window.handleFileSelect = handleFileSelect;
+window.analyzeResume = analyzeResume;
+window.openSavedResumesModal = openSavedResumesModal;
+window.quickLogin = quickLogin;
+window.toggleAuthMode = toggleAuthMode;
+window.handleAuthSubmit = handleAuthSubmit;
+window.logout = logout;
+window.setFilterChip = setFilterChip;
+window.filterSpecializations = filterSpecializations;
+window.openSampleReport = openSampleReport;
+window.openUpgradeModal = openUpgradeModal;
+window.openProfileModal = openProfileModal;
+window.openSettingsModal = openSettingsModal;
+window.openHelpSupportModal = openHelpSupportModal;
+window.openNotificationsModal = openNotificationsModal;
+window.openAboutModal = openAboutModal;
+window.openSuggestionModal = openSuggestionModal;
+window.subscribePlan = subscribePlan;
+window.saveSettings = saveSettings;
+window.loadReportDetails = loadReportDetails;
+window.reAnalyzeFromHistory = reAnalyzeFromHistory;
+window.toggleTheme = toggleTheme;
+window.toggleAiChat = toggleAiChat;
+window.sendAiMessage = sendAiMessage;
 
 
