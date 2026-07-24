@@ -38,8 +38,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Initialization
 function initApp() {
+  seedLocalHistoryIfEmpty();
   checkUserSession();
   loadSpecializations();
+  loadDashboardData();
+}
+
+function seedLocalHistoryIfEmpty() {
+  try {
+    const history = JSON.parse(localStorage.getItem("ats_local_history") || "[]");
+    if (history.length === 0) {
+      const defaultItems = [
+        {
+          id: 101,
+          filename: "AyushmanBehera_cv.pdf",
+          specializationName: "Java Developer",
+          score: 90,
+          grade: "A+",
+          keywordCoverage: 92.0,
+          experienceMatch: 88,
+          educationMatch: 95,
+          projectsMatch: 85,
+          certificationsCount: 3,
+          candidateEmail: "ayushman0426@gmail.com",
+          candidateGithub: "github.com/AyushmanBehera23",
+          candidateName: "Ayushman Behera",
+          cgpa: "8.8 / 10 CGPA",
+          projectsCount: 4,
+          measurableOutcomesCount: 5,
+          measurableOutcomesSummary: "5 Impact Metrics Found (High Impact 🌟): 35% latency reduction, 50,000+ active users, 100K+ requests",
+          matchingSkills: "Java, Spring Boot, React, SQL, Git, REST APIs | Soft: Problem Solving, Teamwork",
+          missingSkills: "Docker, Kubernetes, AWS Lambda | Soft: Time Management",
+          suggestions: [
+            "Add Docker and Kubernetes keywords into your experience bullet points.",
+            "Quantify your accomplishments — add latency metrics and user counts to your project descriptions."
+          ],
+          rawComments: JSON.stringify({
+            summary: "Outstanding resume for Java Developer. Score: 90/100 (Grade A+). Strong alignment with technical and soft skills.",
+            strengths: ["Strong Java & Spring Boot background", "4 Quantified projects detected"],
+            weaknesses: ["Missing Docker & Kubernetes"],
+            changes: ["Add Docker containerization skills"],
+            enhance: ["Publish open-source Java projects to GitHub"]
+          }),
+          createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString()
+        },
+        {
+          id: 102,
+          filename: "Cloud_Architecture_Resume.pdf",
+          specializationName: "Cloud Engineer",
+          score: 84,
+          grade: "A",
+          keywordCoverage: 84.5,
+          experienceMatch: 80,
+          educationMatch: 90,
+          projectsMatch: 82,
+          certificationsCount: 2,
+          candidateEmail: "cloud.dev@email.com",
+          candidateGithub: "github.com/clouddev",
+          candidateName: "Cloud Candidate",
+          cgpa: "8.5 / 10 CGPA",
+          projectsCount: 3,
+          measurableOutcomesCount: 4,
+          measurableOutcomesSummary: "4 Impact Metrics Found: 40% cost reduction on AWS EC2, 99.9% uptime SLA",
+          matchingSkills: "AWS, Docker, Terraform, Linux, CI/CD | Soft: Communication",
+          missingSkills: "Kubernetes, GCP | Soft: Agile",
+          suggestions: ["Highlight Terraform IaC automation scripts."],
+          rawComments: JSON.stringify({
+            summary: "Great Cloud Engineer profile with solid AWS foundation.",
+            strengths: ["AWS & Terraform expertise"],
+            weaknesses: ["GCP experience missing"],
+            changes: ["Include CKA certification"],
+            enhance: ["Add Multi-Cloud Architecture project"]
+          }),
+          createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString()
+        }
+      ];
+      localStorage.setItem("ats_local_history", JSON.stringify(defaultItems));
+    }
+  } catch (e) {}
 }
 
 // Theme Handling (Light / Dark)
