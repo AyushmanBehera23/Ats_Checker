@@ -158,11 +158,12 @@ function showSection(sectionId) {
   document.getElementById("nav-admin").classList.remove("active");
 
   if (sectionId === "upload-section") {
-    document.getElementById("nav-home").classList.add("active");
+    if (document.getElementById("nav-home")) document.getElementById("nav-home").classList.add("active");
   } else if (sectionId === "dashboard-section") {
-    document.getElementById("nav-dashboard").classList.add("active");
+    if (document.getElementById("nav-dashboard")) document.getElementById("nav-dashboard").classList.add("active");
+    loadDashboardData();
   } else if (sectionId === "admin-section") {
-    document.getElementById("nav-admin").classList.add("active");
+    if (document.getElementById("nav-admin")) document.getElementById("nav-admin").classList.add("active");
   }
   
   // Custom scroll reset
@@ -1626,6 +1627,7 @@ function openHelpSupportModal() {
 }
 
 async function openSavedResumesModal() {
+  seedLocalHistoryIfEmpty();
   try {
     const listEl = document.getElementById("saved-resumes-list");
     if (listEl) {
