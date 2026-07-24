@@ -15,6 +15,7 @@ import java.util.Optional;
  * AiChatController — handles AI chat requests about a specific resume report.
  * Endpoint: POST /api/ai/chat
  */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/ai")
 public class AiChatController {
