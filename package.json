@@ -1,0 +1,15 @@
+{
+  "name": "ats-checker-frontend",
+  "version": "1.0.0",
+  "description": "NPM dev server configuration for ATS Checker frontend",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "^5.3.1"
+  }
+}

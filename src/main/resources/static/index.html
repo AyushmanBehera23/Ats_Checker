@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATS Checker - Smart Resume Evaluation</title>
+  
+  <!-- Inline theme detection -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      document.documentElement.setAttribute("data-bs-theme", savedTheme);
+    })();
+  </script>
+  
+  <!-- CSS Library CDNs -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="scroller">
+
+  <div class="app-layout">
+
+    <!-- ═════════════════════════════════════════════════════
+         LEFT SIDEBAR NAVIGATION (Dark Navy Theme)
+         ═════════════════════════════════════════════════════ -->
+    <aside class="app-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-file-circle-check"></i>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">ATS Checker</div>
+          <div class="brand-tag">Smart Resume Evaluation</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="#" class="sidebar-link active" id="nav-dashboard" onclick="showSection('dashboard-section'); event.preventDefault();">
+          <i class="fa-solid fa-table-cells-large"></i> <span>Dashboard</span>
+        </a>
+        <a href="#" class="sidebar-link" id="nav-home" onclick="showSection('upload-section'); event.preventDefault();">
+          <i class="fa-solid fa-file-arrow-up"></i> <span>Check Resume</span>
+        </a>
+        <a href="#" class="sidebar-link" id="nav-specializations" onclick="scrollToSection('spec-section'); event.preventDefault();">
+          <i class="fa-solid fa-shapes"></i> <span>Specializations</span>
+        </a>
+        <a href="#" class="sidebar-link" id="nav-history" onclick="scrollToSection('recent-section'); event.preventDefault();">
+          <i class="fa-solid fa-clock-rotate-left"></i> <span>History</span>
+        </a>
+        <a href="#" class="sidebar-link" id="nav-reports" onclick="showSection('report-section'); event.preventDefault();">
+          <i class="fa-solid fa-chart-column"></i> <span>Reports</span>
+        </a>
+        <a href="#" class="sidebar-link" onclick="openSavedResumesModal(); event.preventDefault();">
+          <i class="fa-solid fa-bookmark"></i> <span>Saved Resumes</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <nav class="sidebar-menu">
+        <a href="#" class="sidebar-link" onclick="openProfileModal(); event.preventDefault();">
+          <i class="fa-solid fa-user"></i> <span>Profile</span>
+        </a>
+        <a href="#" class="sidebar-link" onclick="openSettingsModal(); event.preventDefault();">
+          <i class="fa-solid fa-gear"></i> <span>Settings</span>
+        </a>
+        <a href="#" class="sidebar-link" onclick="openHelpSupportModal(); event.preventDefault();">
+          <i class="fa-solid fa-circle-question"></i> <span>Help & Support</span>
+        </a>
+        <div id="nav-admin-li" style="display: none;">
+          <a href="#" class="sidebar-link" id="nav-admin" onclick="showSection('admin-section'); event.preventDefault();">
+            <i class="fa-solid fa-user-shield"></i> <span>Admin Panel</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Upgrade to Pro Card -->
+      <div class="sidebar-pro-card mt-auto" onclick="openUpgradeModal()" style="cursor: pointer;">
+        <div class="pro-badge"><i class="fa-solid fa-crown me-1"></i> Upgrade to Pro</div>
+        <p class="pro-text">Unlock advanced AI insights, detailed reports and personalized feedback.</p>
+        <button class="btn-pro-upgrade" onclick="openUpgradeModal(); event.stopPropagation();">Upgrade Now <i class="fa-solid fa-arrow-right ms-1"></i></button>
+
+        <div class="bot-mascot-wrapper" onclick="toggleAiChat(); event.stopPropagation();" style="cursor: pointer;">
+          <div class="bot-avatar"><i class="fa-solid fa-robot"></i></div>
+          <div class="bot-speech-bubble">
+            <strong>Hi, I'm ATS Bot 👋</strong><br>
+            I'm here to help you improve your resume.
+          </div>
+        </div>
+      </div>
+    </aside>
+
+
+    <!-- ═════════════════════════════════════════════════════
+         MAIN WORKSPACE AREA
+         ═════════════════════════════════════════════════════ -->
+    <div class="main-workspace-container">
+
+      <!-- TOP HEADER BAR -->
+      <header class="app-topbar">
+        <div class="topbar-nav">
+          <a href="#" class="topbar-link active" onclick="showSection('dashboard-section'); event.preventDefault();">Home</a>
+          <a href="#" class="topbar-link" onclick="showSection('upload-section'); event.preventDefault();">Check Resume</a>
+          <a href="#" class="topbar-link" onclick="scrollToSection('spec-section'); event.preventDefault();">Specializations</a>
+          <a href="#" class="topbar-link" onclick="scrollToSection('recent-section'); event.preventDefault();">History</a>
+          <a href="#" class="topbar-link" onclick="showSection('report-section'); event.preventDefault();">Reports</a>
+          <a href="#" class="topbar-link" onclick="openAboutModal(); event.preventDefault();">About</a>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Theme Switcher -->
+          <button class="topbar-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+            <i id="theme-icon" class="fa-solid fa-sun"></i>
+          </button>
+
+          <!-- Notifications -->
+          <button class="topbar-btn notification-btn" onclick="openNotificationsModal()" title="Notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-badge">2</span>
+          </button>
+
+          <!-- Auth User Badge -->
+          <div id="auth-buttons" style="display: block;">
+            <button class="btn btn-primary btn-sm rounded-pill font-semibold px-3" data-bs-toggle="modal" data-bs-target="#authModal">
+              <i class="fa-solid fa-user-lock me-1"></i> Login / Register
+            </button>
+          </div>
+
+          <div id="user-profile" style="display: none;">
+            <div class="user-profile-badge" id="dock-logout-btn" onclick="logout()" title="Click to Logout">
+              <div class="user-avatar">AB</div>
+              <div class="user-info d-none d-sm-block">
+                <div class="user-name" id="user-welcome">Ayushman Behera</div>
+                <div class="user-role">Software Engineer</div>
+              </div>
+              <i class="fa-solid fa-chevron-down ms-2 text-muted" style="font-size: 0.75rem;"></i>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT BODY -->
+      <main class="workspace-content p-4">
+
+        <!-- ═════════════════════════════════════════════════════
+             MAIN DASHBOARD VIEW (Image 1 & 2 Exact Match)
+             ═════════════════════════════════════════════════════ -->
+        <section id="dashboard-section" class="app-section">
+          
+          <!-- HERO DASHBOARD BANNER -->
+          <div class="dashboard-hero-card">
+            <div class="row align-items-center g-4">
+              
+              <!-- Left Column: Title & Action -->
+              <div class="col-lg-5">
+                <h1 class="hero-main-title">
+                  Smarter Resumes.<br>
+                  Better Matches.<br>
+                  <span class="hero-gradient-text">Stronger Careers.</span>
+                </h1>
+                <p class="hero-subtext">
+                  Our AI analyzes your resume, matches it with industry standards, and provides actionable insights to help you stand out and get hired.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                  <button class="btn btn-hero-primary" onclick="showSection('upload-section')">
+                    <i class="fa-solid fa-cloud-arrow-up me-2"></i> Upload Resume
+                  </button>
+                  <button class="btn btn-hero-secondary" onclick="scrollToSection('spec-section')">
+                    <i class="fa-solid fa-border-all me-2"></i> Choose Specialization
+                  </button>
+                </div>
+                <div class="hero-features-row">
+                  <span class="feature-chip"><i class="fa-solid fa-bolt text-primary"></i> AI-Powered</span>
+                  <span class="feature-chip"><i class="fa-solid fa-bullseye text-success"></i> Accurate Results</span>
+                  <span class="feature-chip"><i class="fa-solid fa-stopwatch text-warning"></i> Instant Feedback</span>
+                  <span class="feature-chip"><i class="fa-solid fa-lock text-info"></i> 100% Secure</span>
+                </div>
+              </div>
+
+              <!-- Center Column: 3D Floating Resume Scanning Graphic -->
+              <div class="col-lg-4 text-center">
+                <div class="floating-resume-stage">
+                  <!-- Tech icons orbiting -->
+                  <div class="tech-icon-chip chip-java"><i class="fa-brands fa-java text-danger"></i> Java</div>
+                  <div class="tech-icon-chip chip-python"><i class="fa-brands fa-python text-warning"></i> Python</div>
+                  <div class="tech-icon-chip chip-react"><i class="fa-brands fa-react text-info"></i> React</div>
+                  <div class="tech-icon-chip chip-sql"><i class="fa-solid fa-database text-primary"></i> SQL</div>
+                  <div class="tech-icon-chip chip-aws"><i class="fa-brands fa-aws text-warning"></i> AWS</div>
+
+                  <!-- Resume Card -->
+                  <div class="resume-3d-card">
+                    <div class="card-user-row">
+                      <div class="card-user-img"><i class="fa-solid fa-user-tie"></i></div>
+                      <div>
+                        <div class="card-user-name">Ayushman Behera</div>
+                        <div class="card-user-sub">Software Engineer</div>
+                      </div>
+                    </div>
+                    
+                    <div class="card-skills-row">
+                      <span class="mini-skill-tag">Java</span>
+                      <span class="mini-skill-tag">SQL</span>
+                      <span class="mini-skill-tag">Spring Boot</span>
+                      <span class="mini-skill-tag">AWS</span>
+                      <span class="mini-skill-tag">Docker</span>
+                      <span class="mini-skill-tag">React</span>
+                    </div>
+
+                    <div class="card-skeleton-lines">
+                      <div class="sk-title">Experience</div>
+                      <div class="sk-line sk-80"></div>
+                      <div class="sk-line sk-60"></div>
+                      <div class="sk-line sk-90"></div>
+                    </div>
+
+                    <div class="card-scan-badge">
+                      <i class="fa-solid fa-spinner fa-spin me-1"></i> Scanning Resume...
+                    </div>
+                    <div class="card-scan-laser"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Your ATS Score Card -->
+              <div class="col-lg-3">
+                <div class="ats-hero-score-card">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">Your ATS Score</h6>
+                    <select class="form-select form-select-sm hero-period-select" style="width: auto;">
+                      <option>This Week</option>
+                      <option>This Month</option>
+                    </select>
+                  </div>
+
+                  <div class="score-donut-wrapper">
+                    <svg class="score-donut-svg" viewBox="0 0 100 100">
+                      <circle class="donut-bg" cx="50" cy="50" r="42"></circle>
+                      <circle class="donut-fg" cx="50" cy="50" r="42" style="stroke-dashoffset: 60;"></circle>
+                    </svg>
+                    <div class="score-donut-text">
+                      <span class="score-val">87</span>
+                      <span class="score-max">/100</span>
+                    </div>
+                  </div>
+
+                  <div class="text-center my-3">
+                    <div class="fw-bold text-dark" style="font-size: 0.92rem;">Great Match! 🎉</div>
+                    <div class="text-muted" style="font-size: 0.78rem;">You're better than 87% of other candidates.</div>
+                  </div>
+
+                  <!-- Sparkline Chart -->
+                  <div class="sparkline-container">
+                    <svg viewBox="0 0 150 40" class="sparkline-svg">
+                      <path d="M0 35 Q30 30, 50 25 T100 15 T150 8" fill="none" stroke="#635BFF" stroke-width="3"/>
+                      <circle cx="0" cy="35" r="3" fill="#635BFF"/>
+                      <circle cx="50" cy="25" r="3" fill="#635BFF"/>
+                      <circle cx="100" cy="15" r="3" fill="#635BFF"/>
+                      <circle cx="150" cy="8" r="4" fill="#635BFF"/>
+                    </svg>
+                    <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 0.68rem;">
+                      <span>Apr</span>
+                      <span>May</span>
+                      <span>Jun</span>
+                      <span>Jul</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SPECIALIZATION CARDS GRID -->
+          <div id="spec-section" class="mt-5 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h4 class="fw-bold mb-1" style="font-family:'Outfit',sans-serif;">Choose Your Specialization</h4>
+                <p class="text-muted mb-0" style="font-size: 0.88rem;">Select your field and get AI-powered evaluation tailored to that domain.</p>
+              </div>
+              <a href="#" class="text-primary fw-bold text-decoration-none" style="font-size: 0.88rem;" onclick="scrollToSection('specializations-grid')">
+                View all specializations <i class="fa-solid fa-arrow-right ms-1"></i>
+              </a>
+            </div>
+
+            <!-- Search + Filter Bar -->
+            <div class="spec-search-bar mb-3">
+              <div class="spec-search-input">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="spec-search" placeholder="Search specializations..." oninput="filterSpecializations()" autocomplete="off">
+              </div>
+            </div>
+            <div class="spec-filter-chips mb-4" id="spec-filter-chips">
+              <button class="filter-chip active" data-cat="all" onclick="setFilterChip(this, 'all')">All Roles</button>
+              <button class="filter-chip" data-cat="backend" onclick="setFilterChip(this, 'backend')"><i class="fa-solid fa-server me-1"></i>Backend</button>
+              <button class="filter-chip" data-cat="frontend" onclick="setFilterChip(this, 'frontend')"><i class="fa-solid fa-browser me-1"></i>Frontend</button>
+              <button class="filter-chip" data-cat="cloud" onclick="setFilterChip(this, 'cloud')"><i class="fa-solid fa-cloud me-1"></i>Cloud</button>
+              <button class="filter-chip" data-cat="devops" onclick="setFilterChip(this, 'devops')"><i class="fa-solid fa-gears me-1"></i>DevOps</button>
+              <button class="filter-chip" data-cat="data" onclick="setFilterChip(this, 'data')"><i class="fa-solid fa-chart-bar me-1"></i>Data</button>
+              <button class="filter-chip" data-cat="mobile" onclick="setFilterChip(this, 'mobile')"><i class="fa-solid fa-mobile-screen me-1"></i>Mobile</button>
+            </div>
+
+            <div class="row g-3" id="specializations-grid">
+              <!-- Dynamically populated 6 specialization cards -->
+              <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Loading specializations...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- LOWER DASHBOARD 3-COLUMN GRID -->
+          <div class="row g-4 mt-2 mb-5">
+            
+            <!-- Column 1: Recent Evaluations -->
+            <div class="col-lg-4" id="recent-section">
+              <div class="dash-card h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="fw-bold mb-0">Recent Evaluations</h5>
+                  <button class="btn btn-link btn-sm text-primary p-0 fw-bold text-decoration-none" onclick="openSavedResumesModal();">View All</button>
+                </div>
+
+                <div class="recent-list d-flex flex-column gap-3 mb-3" id="recent-evaluations-list">
+                  <div class="text-center py-4 text-muted small">Loading evaluations...</div>
+                </div>
+
+                <a href="#" class="text-primary fw-bold text-decoration-none mt-auto d-inline-block" style="font-size: 0.85rem;" onclick="openSavedResumesModal(); event.preventDefault();">
+                  Go to history <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Column 2: ATS Score Overview -->
+            <div class="col-lg-4" id="overview-section">
+              <div class="dash-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="fw-bold mb-0">ATS Score Overview</h5>
+                  <select class="form-select form-select-sm" style="width: auto; font-size: 0.78rem;">
+                    <option>This Month</option>
+                  </select>
+                </div>
+
+                <div class="row align-items-center mb-3">
+                  <div class="col-5 text-center border-end">
+                    <div class="score-donut-wrapper mini-donut mx-auto">
+                      <svg class="score-donut-svg" viewBox="0 0 100 100">
+                        <circle class="donut-bg" cx="50" cy="50" r="42"></circle>
+                        <circle class="donut-fg" cx="50" cy="50" r="42" style="stroke-dashoffset: 60;"></circle>
+                      </svg>
+                      <div class="score-donut-text">
+                        <span class="score-val">87</span>
+                        <span class="score-max">/100</span>
+                      </div>
+                    </div>
+                    <div class="mt-2 text-muted" style="font-size: 0.72rem;">
+                      Average Score <span class="text-success fw-bold">↑ 12%</span><br>vs last month
+                    </div>
+                  </div>
+
+                  <div class="col-7">
+                    <div class="breakdown-item mb-2">
+                      <div class="d-flex justify-content-between" style="font-size: 0.75rem;">
+                        <span>Skills</span>
+                        <strong class="text-dark">18 / 24</strong>
+                      </div>
+                      <div class="progress-bar-bg"><div class="progress-bar-fill fill-green" style="width: 75%;"></div></div>
+                    </div>
+                    <div class="breakdown-item mb-2">
+                      <div class="d-flex justify-content-between" style="font-size: 0.75rem;">
+                        <span>Experience</span>
+                        <strong class="text-dark">20 / 25</strong>
+                      </div>
+                      <div class="progress-bar-bg"><div class="progress-bar-fill fill-blue" style="width: 80%;"></div></div>
+                    </div>
+                    <div class="breakdown-item mb-2">
+                      <div class="d-flex justify-content-between" style="font-size: 0.75rem;">
+                        <span>Education</span>
+                        <strong class="text-dark">15 / 20</strong>
+                      </div>
+                      <div class="progress-bar-bg"><div class="progress-bar-fill fill-purple" style="width: 75%;"></div></div>
+                    </div>
+                    <div class="breakdown-item">
+                      <div class="d-flex justify-content-between" style="font-size: 0.75rem;">
+                        <span>Keywords</span>
+                        <strong class="text-dark">22 / 31</strong>
+                      </div>
+                      <div class="progress-bar-bg"><div class="progress-bar-fill fill-orange" style="width: 70%;"></div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row pt-3 border-top text-center">
+                  <div class="col-6 border-end">
+                    <div class="h4 fw-bold mb-0 text-dark">12</div>
+                    <div class="text-muted" style="font-size: 0.72rem;">Total Evaluations</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="h4 fw-bold mb-0 text-dark"><i class="fa-solid fa-star text-warning me-1"></i>4.6</div>
+                    <div class="text-muted" style="font-size: 0.72rem;">Satisfaction Score</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 3: AI Suggestions -->
+            <div class="col-lg-4">
+              <div class="dash-card h-100 position-relative overflow-hidden">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="fw-bold mb-0">AI Suggestions</h5>
+                  <button class="btn btn-link btn-sm text-primary p-0 fw-bold text-decoration-none" onclick="showSection('report-section')">View full report <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+
+                <div class="suggestions-list d-flex flex-column gap-3">
+                  <div class="suggestion-item" onclick="openSuggestionModal('keywords')" style="cursor: pointer;">
+                    <div class="sug-icon sug-green"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <div>
+                      <div class="sug-title">Add more relevant keywords</div>
+                      <div class="sug-desc">Include industry-specific keywords to improve matching.</div>
+                    </div>
+                  </div>
+
+                  <div class="suggestion-item" onclick="openSuggestionModal('skills')" style="cursor: pointer;">
+                    <div class="sug-icon sug-blue"><i class="fa-solid fa-file-code"></i></div>
+                    <div>
+                      <div class="sug-title">Improve skills section</div>
+                      <div class="sug-desc">Highlight top skills that are in demand.</div>
+                    </div>
+                  </div>
+
+                  <div class="suggestion-item" onclick="openSuggestionModal('quantify')" style="cursor: pointer;">
+                    <div class="sug-icon sug-purple"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                      <div class="sug-title">Quantify your achievements</div>
+                      <div class="sug-desc">Use numbers and metrics to show impact.</div>
+                    </div>
+                  </div>
+
+                  <div class="suggestion-item" onclick="openSuggestionModal('experience')" style="cursor: pointer;">
+                    <div class="sug-icon sug-orange"><i class="fa-solid fa-bullseye"></i></div>
+                    <div>
+                      <div class="sug-title">Enhance experience details</div>
+                      <div class="sug-desc">Add more context and responsibilities.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- FOOTER -->
+          <footer class="dashboard-footer text-center text-muted py-4 border-top">
+            <div>© 2025 ATS Checker. All rights reserved. &nbsp;|&nbsp; Built with ❤️ using Java & SQL</div>
+          </footer>
+        </section>
+
+
+        <!-- ═════════════════════════════════════════════════════
+             UPLOAD RESUME VIEW / SECTION
+             ═════════════════════════════════════════════════════ -->
+        <section id="upload-section" class="app-section" style="display: none;">
+          <div class="row mb-4">
+            <div class="col-lg-9 mx-auto d-flex justify-content-between align-items-center">
+              <button class="btn btn-outline-secondary" onclick="showSection('dashboard-section')">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+              </button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-9 mx-auto">
+              <!-- Checklist Steps -->
+              <div class="checklist-steps-container mb-4" aria-label="Resume analysis checklist">
+                <div class="checklist-step active" id="step-1">
+                  <span class="chkbox"></span>
+                  <span class="lbl">1. Select Profile</span>
+                </div>
+                <div class="checklist-step" id="step-2">
+                  <span class="chkbox"></span>
+                  <span class="lbl">2. Drop Resume</span>
+                </div>
+                <div class="checklist-step" id="step-3">
+                  <span class="chkbox"></span>
+                  <span class="lbl">3. Paste JD (Optional)</span>
+                </div>
+                <div class="checklist-step" id="step-4">
+                  <span class="chkbox"></span>
+                  <span class="lbl">4. Screen Profile</span>
+                </div>
+              </div>
+
+              <!-- Specialization Selection (Step 1) -->
+              <div class="mb-4">
+                <h4 class="fw-bold mb-3 d-flex align-items-center">
+                  <span class="badge bg-primary rounded-circle me-2">1</span>
+                  Target Specialization Profile
+                </h4>
+                <select id="upload-spec-select" class="form-select form-select-lg shadow-sm" style="background-color: var(--card-bg); border-radius: 12px; font-size: 0.95rem;" onchange="handleUploadSpecChange(this.value)">
+                  <option value="" disabled selected>Select a specialization profile...</option>
+                </select>
+              </div>
+
+              <!-- File Upload Dropzone (Step 2) -->
+              <div class="mb-4">
+                <h4 class="fw-bold mb-3 d-flex align-items-center">
+                  <span class="badge bg-primary rounded-circle me-2">2</span>
+                  Upload Resume
+                </h4>
+                <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+                  <div class="scan-line" id="dropzone-scan-line"></div>
+                  <input type="file" id="file-input" class="d-none" accept=".pdf,.docx,.txt">
+                  <div class="upload-icon-wrapper">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                  </div>
+                  <h5 class="fw-bold mb-1" id="upload-label">Drop your resume here or click to browse</h5>
+                  <p class="text-muted mb-0" style="font-size: 0.88rem;">Drag & drop supported — Max 10MB</p>
+                  <div class="format-chips">
+                    <div class="format-chip"><i class="fa-solid fa-file-pdf text-danger"></i> PDF</div>
+                    <div class="format-chip"><i class="fa-solid fa-file-word text-primary"></i> DOCX</div>
+                    <div class="format-chip"><i class="fa-solid fa-file-lines text-success"></i> TXT</div>
+                  </div>
+                  <div id="file-details" class="mt-3 fw-bold d-none" style="color: var(--green-ink); font-size: 0.88rem;"></div>
+                </div>
+              </div>
+
+              <!-- One-Click Sandbox Quick Tests -->
+              <div class="sandbox-container mb-4">
+                <h5 class="fw-bold mb-2" style="font-size: 0.95rem;">
+                  <i class="fa-solid fa-flask text-primary me-2"></i> Test-drive instantly with a sample profile:
+                </h5>
+                <div class="sandbox-grid">
+                  <button class="sandbox-btn" onclick="trySandbox('Java Developer')">
+                    <i class="fa-brands fa-java"></i>
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700;">Java backend</div>
+                      <div style="font-size: 0.7rem; color: var(--text-muted);">Preloads Java resume</div>
+                    </div>
+                  </button>
+                  <button class="sandbox-btn" onclick="trySandbox('Frontend Developer')">
+                    <i class="fa-brands fa-js"></i>
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700;">Frontend web</div>
+                      <div style="font-size: 0.7rem; color: var(--text-muted);">Preloads React resume</div>
+                    </div>
+                  </button>
+                  <button class="sandbox-btn" onclick="trySandbox('DevOps Engineer')">
+                    <i class="fa-solid fa-server"></i>
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700;">DevOps Cloud</div>
+                      <div style="font-size: 0.7rem; color: var(--text-muted);">Preloads AWS/K8s resume</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Optional Job Description -->
+              <div class="mb-4">
+                <h4 class="fw-bold mb-3 d-flex align-items-center">
+                  <span class="badge bg-secondary rounded-circle me-2">3</span>
+                  Have a Job Description? <span class="text-muted ms-2 fs-6 fw-normal">(Optional)</span>
+                </h4>
+                <textarea id="jd-input" class="form-control" rows="5" placeholder="Paste the Job Description (JD) here to evaluate your resume specifically against it..." style="background-color: var(--card-bg); border-radius: 12px;"></textarea>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="text-center mb-5">
+                <button class="btn btn-primary btn-lg px-5 py-3 fw-bold shadow" onclick="analyzeResume()" id="btn-analyze" style="border-radius: 50px;">
+                  <i class="fa-solid fa-microscope me-2"></i> Submit Resume For Evaluation
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ═════════════════════════════════════════════════════
+             REPORT CARD SECTION (EXAMINER ANSWER SHEET)
+             ═════════════════════════════════════════════════════ -->
+        <section id="report-section" class="app-section" style="display: none;">
+          <div class="row mb-4">
+            <div class="col-lg-9 mx-auto d-flex justify-content-between align-items-center">
+              <button class="btn btn-outline-secondary" onclick="showSection('dashboard-section')">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+              </button>
+              <div class="d-flex gap-2">
+                <a id="download-report-btn" href="#" class="btn btn-danger">
+                  <i class="fa-solid fa-file-pdf me-1"></i> Download PDF Report
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <aside class="col-lg-2 d-none d-lg-block">
+              <nav class="report-nav" aria-label="Report sections">
+                <a href="#report-overview">Overview</a>
+                <a href="#report-keywords">Keywords</a>
+                <a href="#report-feedback">Suggestions</a>
+              </nav>
+            </aside>
+
+            <div class="col-lg-9">
+              <div class="readiness-hero" id="report-overview">
+                <div>
+                  <span class="eyebrow">RESUME READINESS</span>
+                  <h2>Ready for the next application?</h2>
+                  <p>Use the priority actions below to improve this result.</p>
+                </div>
+                <div class="score-circle-container" id="readiness-score-container">
+                  <svg class="score-svg">
+                    <circle class="bg-circle" cx="65" cy="65" r="60"></circle>
+                    <circle class="progress-circle" id="score-progress-circle" cx="65" cy="65" r="60"></circle>
+                  </svg>
+                  <div class="score-circle-val">
+                    <span class="score-circle-num" id="readiness-score-num">82</span>
+                    <span class="score-circle-lbl">ATS Match</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ruled Exam Paper Container -->
+              <div class="exam-paper shadow mb-5" id="report-paper">
+                <div class="score-stamp" id="paper-score-stamp">
+                  <div>SCORE</div>
+                  <div class="stamp-score" id="paper-score">82 / 100</div>
+                  <div class="stamp-grade" id="paper-grade">Grade: A</div>
+                </div>
+
+                <div class="text-center mb-5">
+                  <h2 class="fw-bold" style="font-family: 'Outfit', sans-serif;">REPORT CARD: ATS EVALUATION</h2>
+                  <div class="text-muted border-bottom pb-2">EXAMINER BOARD OF RECRUITMENT</div>
+                </div>
+
+                <div class="mb-4 p-3 rounded" id="report-keywords" style="background-color: var(--surface-muted); border: 1px solid var(--card-border);">
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <div><strong>RESUME FILE:</strong> <span id="paper-filename" class="fw-bold">resume_john_doe.pdf</span></div>
+                      <div><strong>TARGET ROLE:</strong> <span id="paper-specialization" class="fw-bold">Java Developer</span></div>
+                      <div><strong>EVALUATION DATE:</strong> <span id="paper-date" class="fw-bold">2026-07-18</span></div>
+                    </div>
+                    <div class="col-md-6">
+                      <div><strong>CANDIDATE EMAIL:</strong> <span id="paper-candidate-email" class="badge bg-primary-subtle text-primary">Not specified</span></div>
+                      <div><strong>GITHUB PROFILE:</strong> <span id="paper-candidate-github" class="badge bg-secondary-subtle text-dark">Not specified</span></div>
+                      <div><strong>CGPA / MARKS:</strong> <span id="paper-candidate-cgpa" class="badge bg-success-subtle text-success">Not specified</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Parsed Impact & Projects Metrics -->
+                <div class="mb-4 p-3 rounded" style="background: rgba(99, 91, 255, 0.04); border: 1px solid rgba(99, 91, 255, 0.15);">
+                  <h6 class="fw-bold mb-2 text-primary" style="font-family: 'Outfit', sans-serif;">
+                    <i class="fa-solid fa-chart-line me-1"></i> PARSED IMPACT & PROJECT ANALYSIS
+                  </h6>
+                  <div class="row g-2 align-items-center">
+                    <div class="col-md-5 border-end">
+                      <div><strong>Projects Detected:</strong> <span id="paper-projects-count" class="badge bg-primary rounded-pill px-2 py-1">0 Projects</span></div>
+                      <div class="mt-1"><strong>Measurable Impact Count:</strong> <span id="paper-outcomes-count" class="badge bg-info text-dark rounded-pill px-2 py-1">0 Metrics</span></div>
+                    </div>
+                    <div class="col-md-7 ps-md-3">
+                      <div class="small text-muted fw-bold">MEASURABLE OUTCOMES SUMMARY:</div>
+                      <div class="small fw-semibold text-dark mt-1" id="paper-outcomes-summary">No quantifiable metrics detected.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <h5 class="fw-bold text-decoration-underline mb-3" style="font-family: 'Outfit', sans-serif;">SECTION MARKS:</h5>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <div>Keyword Coverage: <strong id="section-keyword">85%</strong></div>
+                      <div>Experience Match: <strong id="section-experience">80/100</strong></div>
+                      <div>Education Match: <strong id="section-education">90/100</strong></div>
+                    </div>
+                    <div class="col-md-6">
+                      <div>Projects Match: <strong id="section-projects">75/100</strong></div>
+                      <div>Certifications: <strong id="section-certs">Found</strong></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <div class="mb-3">
+                    <div class="fw-bold text-success"><i class="fa-solid fa-circle-check me-1"></i> MATCHED SKILLS (TECHNICAL & SOFT):</div>
+                    <div class="ps-3 text-muted" id="paper-matched-skills" style="line-height: 1.8rem;">
+                      Java, OOP, Collection, Spring Boot, Git, MySQL, Problem Solving, Communication
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="fw-bold text-danger"><i class="fa-solid fa-circle-xmark me-1"></i> MISSING SKILLS (RECOMMENDED):</div>
+                    <div class="ps-3 text-muted" id="paper-missing-skills" style="line-height: 1.8rem;">
+                      Hibernate, Multithreading, Design Patterns
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <h5 class="fw-bold text-decoration-underline mb-2" style="font-family: 'Outfit', sans-serif;">EXAMINER SUMMARY:</h5>
+                  <div class="handwritten-blue ps-3" id="paper-comments" style="white-space: pre-wrap; line-height: 1.8;">
+                    Loading examiner summary...
+                  </div>
+                </div>
+
+                <div class="feedback-card feedback-strengths mb-3">
+                  <div class="feedback-header">
+                    <i class="fa-solid fa-star"></i>
+                    <span>STRENGTHS — What's Good in Your Resume</span>
+                  </div>
+                  <ul id="feedback-strengths-list" class="feedback-list">
+                    <li>Analyzing...</li>
+                  </ul>
+                </div>
+
+                <div class="feedback-card feedback-weaknesses mb-3" id="report-feedback">
+                  <div class="feedback-header">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>WEAKNESSES — Problem Areas</span>
+                  </div>
+                  <ul id="feedback-weaknesses-list" class="feedback-list">
+                    <li>Analyzing...</li>
+                  </ul>
+                  <div class="feedback-context"><i class="fa-solid fa-compass"></i> Why this matters: recruiters and ATS systems use these signals to decide whether your experience matches the role.</div>
+                </div>
+
+                <div class="feedback-card feedback-changes mb-3">
+                  <div class="feedback-header">
+                    <i class="fa-solid fa-wrench"></i>
+                    <span>WHAT TO CHANGE — Immediate Fixes Needed</span>
+                  </div>
+                  <ul id="feedback-changes-list" class="feedback-list">
+                    <li>Analyzing...</li>
+                  </ul>
+                </div>
+
+                <div class="feedback-card feedback-enhancements mb-3">
+                  <div class="feedback-header">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>ENHANCEMENTS — Value-Add Upgrades</span>
+                  </div>
+                  <ul id="feedback-enhancements-list" class="feedback-list">
+                    <li>Analyzing...</li>
+                  </ul>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═════════════════════════════════════════════════════
+             ADMIN SECTION
+             ═════════════════════════════════════════════════════ -->
+        <section id="admin-section" class="app-section" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Admin Management Panel</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSpecModal">
+              <i class="fa-solid fa-plus me-1"></i> Add Specialization
+            </button>
+          </div>
+          <div class="table-responsive bg-white rounded shadow-sm p-3">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Specialization Name</th>
+                  <th>Description</th>
+                  <th>Skills Count</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-spec-table">
+                <!-- Dynamically populated admin rows -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+  </div>
+
+
+  <!-- ═════════════════════════════════════════════════════
+       MODALS
+       ═════════════════════════════════════════════════════ -->
+
+  <!-- Upload Resume Modal Overlay -->
+  <div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i> Upload Resume for ATS Check</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="text-center mb-3">
+            <p class="text-muted mb-0">Select your resume file to trigger immediate AI examiner evaluation.</p>
+          </div>
+          <div class="upload-dropzone p-4" onclick="document.getElementById('file-input-modal').click()">
+            <input type="file" id="file-input-modal" class="d-none" accept=".pdf,.docx,.txt" onchange="syncModalFile(this)">
+            <div class="upload-icon-wrapper mb-2">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.2rem; color: var(--accent-color);"></i>
+            </div>
+            <h5 class="fw-bold mb-1">Click to browse or drop your resume here</h5>
+            <p class="text-muted mb-0" style="font-size: 0.82rem;">Supports PDF, DOCX, TXT (Max 10MB)</p>
+            <div id="modal-file-details" class="mt-2 fw-bold text-success d-none" style="font-size: 0.85rem;"></div>
+          </div>
+        </div>
+        <div class="modal-footer border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm px-4 fw-bold" data-bs-dismiss="modal" onclick="showSection('upload-section')">Proceed to Check <i class="fa-solid fa-arrow-right ms-1"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="modal fade" id="authModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" id="authModalLabel" style="font-family:'Outfit',sans-serif;">Sign In</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+            <div id="auth-alert" class="alert alert-danger d-none"></div>
+
+            <div class="mb-3 d-none" id="auth-email-group">
+              <label class="form-label">Email address</label>
+              <input type="email" id="auth-email" class="form-control" placeholder="name@example.com">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" id="auth-username" class="form-control" required placeholder="johndoe">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" id="auth-password" class="form-control" required placeholder="••••••••">
+            </div>
+
+            <!-- Quick Login Presets -->
+            <div class="mb-3 p-3 bg-light rounded-3 text-center border">
+              <div class="small fw-bold text-muted mb-2"><i class="fa-solid fa-bolt text-warning me-1"></i> Quick Test Accounts</div>
+              <div class="d-flex gap-2 justify-content-center">
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold" onclick="quickLogin('admin', 'admin123')">
+                  <i class="fa-solid fa-user-shield me-1"></i> Admin (admin)
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold" onclick="quickLogin('test', 'test123')">
+                  <i class="fa-solid fa-user me-1"></i> Candidate (test)
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 fw-bold py-2" id="auth-submit-btn" style="border-radius: 10px;">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer justify-content-center border-top">
+          <span class="text-muted" id="auth-toggle-text">Don't have an account?</span>
+          <a href="#" id="auth-toggle-btn" onclick="toggleAuthMode(event)">Register here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Specialization Modal -->
+  <div class="modal fade" id="addSpecModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;">Add Specialization Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="spec-form" onsubmit="handleNewSpecSubmit(event)">
+            <div class="mb-3">
+              <label class="form-label">Specialization Name</label>
+              <input type="text" id="new-spec-name" class="form-control" required placeholder="e.g. Kotlin Developer">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea id="new-spec-desc" class="form-control" rows="3" placeholder="Define this role..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Create Profile</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Skill Modal -->
+  <div class="modal fade" id="addSkillModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;">Add Skill Keyword</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="skill-form" onsubmit="handleNewSkillSubmit(event)">
+            <div class="mb-3">
+              <label class="form-label">Skill Name / Keyword</label>
+              <input type="text" id="new-skill-name" class="form-control" required placeholder="e.g. Docker">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Skill Category</label>
+              <select id="new-skill-category" class="form-select">
+                <option value="TECHNICAL">Technical Skill</option>
+                <option value="SOFT">Soft Skill</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success w-100 fw-bold py-2">Add to Specialization</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING AI CHAT PANEL -->
+  <div id="ai-chat-widget" style="display:none; position:fixed; bottom:24px; right:24px; z-index:9999;">
+    <button id="ai-chat-btn" onclick="toggleAiChat()"
+      style="width:58px; height:58px; border-radius:50%; border:none; cursor:pointer;
+             background: linear-gradient(135deg, #635BFF 0%, #764ba2 100%);
+             box-shadow: 0 4px 20px rgba(99,91,255,0.4);
+             display:flex; align-items:center; justify-content:center;
+             transition: transform 0.2s;"
+      title="Ask AI about your resume">
+      <i class="fa-solid fa-robot" style="color:white; font-size:22px;"></i>
+    </button>
+
+    <div id="ai-chat-panel"
+      style="display:none; position:absolute; bottom:70px; right:0;
+             width:360px; border-radius:16px; overflow:hidden;
+             box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+             background: rgba(255,255,255,0.97);
+             backdrop-filter: blur(20px);
+             border: 1px solid rgba(99,91,255,0.2);">
+      <div style="background: linear-gradient(135deg, #635BFF 0%, #764ba2 100%);
+                  padding:14px 18px; display:flex; align-items:center; gap:10px;">
+        <div style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.2);
+                    display:flex; align-items:center; justify-content:center;">
+          <i class="fa-solid fa-robot" style="color:white; font-size:16px;"></i>
+        </div>
+        <div>
+          <div style="color:white; font-weight:700; font-size:14px; font-family:'Outfit',sans-serif;">Gemini AI Coach</div>
+          <div id="ai-panel-status" style="color:rgba(255,255,255,0.8); font-size:11px;">Ask anything about your report</div>
+        </div>
+        <button onclick="toggleAiChat()" style="margin-left:auto; background:transparent; border:none;
+                color:rgba(255,255,255,0.8); font-size:18px; cursor:pointer; line-height:1;">×</button>
+      </div>
+
+      <div id="ai-chat-messages"
+        style="height:280px; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;
+               background: #f8f9ff; scroll-behavior:smooth;">
+        <div class="ai-msg-bot" style="display:flex; gap:8px; align-items:flex-start;">
+          <div style="width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#635BFF,#764ba2);
+                      display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">
+            <i class="fa-solid fa-robot" style="color:white; font-size:11px;"></i>
+          </div>
+          <div class="ai-chat-bubble" style="padding:10px 13px; border-radius:12px 12px 12px 4px;
+                      font-size:13px; line-height:1.5; box-shadow:0 1px 4px rgba(0,0,0,0.08);
+                      max-width:260px;">
+            Hi! 👋 I'm your AI Resume Coach. Ask me anything about your evaluation!
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-chat-input-row" style="padding:12px; border-top:1px solid; display:flex; gap:8px;">
+        <input id="ai-chat-input" type="text"
+          placeholder="Ask about your report..."
+          onkeydown="if(event.key==='Enter') sendAiMessage()"
+          style="flex:1; border:1px solid; border-radius:20px; padding:8px 14px;
+                 font-size:13px; outline:none; font-family:'Outfit',sans-serif;">
+        <button onclick="sendAiMessage()" id="ai-send-btn"
+          style="width:38px; height:38px; border-radius:50%; border:none; cursor:pointer;
+                 background:linear-gradient(135deg,#635BFF,#764ba2); color:white;
+                 display:flex; align-items:center; justify-content:center;">
+          <i class="fa-solid fa-paper-plane" style="font-size:13px;"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPGRADE TO PRO MODAL -->
+  <div class="modal fade" id="upgradeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;">
+            <i class="fa-solid fa-crown text-warning me-2"></i> Upgrade to ATS Checker Pro
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="text-center mb-4">
+            <h4 class="fw-bold" style="font-family:'Outfit',sans-serif;">Choose the plan that fits your career goals</h4>
+            <p class="text-muted">Unlock unlimited AI scans, custom job description matching, and recruiter insights.</p>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="card h-100 p-3 text-center" style="background: var(--surface-muted); border: 1px solid var(--card-border); border-radius: 16px;">
+                <h6 class="fw-bold text-muted">Starter</h6>
+                <div class="h3 fw-bold text-dark my-2">$0 <small class="fs-6 text-muted">/mo</small></div>
+                <ul class="list-unstyled text-start small text-muted my-3">
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> 3 Resume scans / mo</li>
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Basic score breakdown</li>
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Standard template report</li>
+                </ul>
+                <button class="btn btn-outline-secondary w-100 mt-auto rounded-pill" data-bs-dismiss="modal">Current Plan</button>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card h-100 p-3 text-center position-relative" style="background: var(--card-bg); border: 2px solid #635BFF; border-radius: 16px; box-shadow: 0 10px 30px rgba(99,91,255,0.2);">
+                <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-primary px-3 py-2">MOST POPULAR</span>
+                <h6 class="fw-bold text-primary mt-2">Pro Candidate</h6>
+                <div class="h3 fw-bold text-dark my-2">$19 <small class="fs-6 text-muted">/mo</small></div>
+                <ul class="list-unstyled text-start small text-muted my-3">
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Unlimited AI resume scans</li>
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> AI Bullet Point Rewriter</li>
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Full keyword gap analysis</li>
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Priority Gemini 1.5 Pro AI</li>
+                </ul>
+                <button class="btn btn-hero-primary w-100 mt-auto rounded-pill" onclick="subscribePlan('Pro Candidate')">Upgrade to Pro</button>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card h-100 p-3 text-center" style="background: var(--surface-muted); border: 1px solid var(--card-border); border-radius: 16px;">
+                <h6 class="fw-bold text-purple">Executive Team</h6>
+                <div class="h3 fw-bold text-dark my-2">$49 <small class="fs-6 text-muted">/mo</small></div>
+                <ul class="list-unstyled text-start small text-muted my-3">
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Everything in Pro</li>
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Team seats (5 accounts)</li>
+                  <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> 1-on-1 Recruiter Consultation</li>
+                </ul>
+                <button class="btn btn-outline-primary w-100 mt-auto rounded-pill" onclick="subscribePlan('Executive Team')">Contact Sales</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;"><i class="fa-solid fa-user text-primary me-2"></i> User Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4 text-center">
+          <div class="user-avatar mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.5rem; border-radius: 50%; background: linear-gradient(135deg, #635BFF, #3B82F6); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">AB</div>
+          <h5 class="fw-bold mb-1" id="profile-modal-name">Ayushman Behera</h5>
+          <p class="text-muted small mb-3" id="profile-modal-role">Software Engineer • Admin Account</p>
+
+          <div class="row g-2 text-start small mb-4">
+            <div class="col-6 p-2 bg-light rounded"><strong class="text-dark">Email:</strong> <span id="profile-modal-email">admin@atschecker.io</span></div>
+            <div class="col-6 p-2 bg-light rounded"><strong class="text-dark">Member Since:</strong> Jan 2025</div>
+            <div class="col-6 p-2 bg-light rounded"><strong class="text-dark">Plan:</strong> Pro Candidate</div>
+            <div class="col-6 p-2 bg-light rounded"><strong class="text-dark">Credits:</strong> 98 / 100</div>
+          </div>
+
+          <button class="btn btn-primary w-100 rounded-pill font-semibold" data-bs-dismiss="modal">Close Profile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;"><i class="fa-solid fa-gear text-primary me-2"></i> Application Settings</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-bold">AI Scoring Engine</label>
+            <select class="form-select" id="settings-ai-engine">
+              <option value="standard">Standard ATS Rule Engine (Fast)</option>
+              <option value="gemini" selected>Google Gemini 1.5 Pro AI (Deep Insight)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Default Theme</label>
+            <select class="form-select" onchange="if(this.value!==localStorage.getItem('theme')) toggleTheme();">
+              <option value="light">Light Mode</option>
+              <option value="dark">Dark Mode</option>
+            </select>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="autoSaveToggle" checked>
+            <label class="form-check-label fw-semibold" for="autoSaveToggle">Auto-save evaluation reports to history</label>
+          </div>
+
+          <button class="btn btn-primary w-100 rounded-pill font-semibold mt-2" onclick="saveSettings()">Save Preferences</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELP & SUPPORT MODAL -->
+  <div class="modal fade" id="helpSupportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;"><i class="fa-solid fa-circle-question text-primary me-2"></i> Help & Support Center</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="accordion" id="faqAccordion">
+            <div class="accordion-item mb-2 border rounded-3">
+              <h2 class="accordion-header">
+                <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                  How does ATS Checker evaluate my resume score?
+                </button>
+              </h2>
+              <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-muted small">
+                  Our system compares your resume against real applicant tracking system (ATS) parsing rules, target job specialization requirements, missing keyword density, experience metrics, and formatting cleanliness.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item mb-2 border rounded-3">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                  Which file formats are supported?
+                </button>
+              </h2>
+              <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-muted small">
+                  We support PDF (.pdf), Microsoft Word (.docx), and Plain Text (.txt) files up to 10MB in size.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item border rounded-3">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                  How can I improve my keyword score?
+                </button>
+              </h2>
+              <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-muted small">
+                  Check the "Keyword Gaps" section in your Examiner Report. Incorporate missing technical tools, frameworks, and job description terms into your work experience bullet points.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVED RESUMES MODAL -->
+  <div class="modal fade" id="savedResumesModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;"><i class="fa-solid fa-bookmark text-primary me-2"></i> Saved Resumes & Templates</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="list-group" id="saved-resumes-list">
+            <div class="list-group-item d-flex justify-content-between align-items-center p-3 border-0 bg-light rounded-3 mb-2">
+              <div class="d-flex align-items-center gap-3">
+                <i class="fa-solid fa-file-pdf text-danger fs-3"></i>
+                <div>
+                  <h6 class="fw-bold mb-0 text-dark">Ayushman_Resume_2025.pdf</h6>
+                  <small class="text-muted">Software Engineering • Score: 87/100</small>
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="showSection('report-section'); bootstrap.Modal.getInstance(document.getElementById('savedResumesModal')).hide();">View Report</button>
+                <button class="btn btn-sm btn-primary" onclick="openUploadModal(); bootstrap.Modal.getInstance(document.getElementById('savedResumesModal')).hide();">Re-analyze</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS MODAL -->
+  <div class="modal fade" id="notificationsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;"><i class="fa-solid fa-bell text-warning me-2"></i> Notifications</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item p-3 border-bottom bg-transparent">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-circle-check text-success me-2"></i> Analysis Complete</h6>
+                <small class="text-muted">2 hours ago</small>
+              </div>
+              <p class="mb-1 text-muted small">Your resume Ayushman_Resume.pdf scored 87/100 in Software Engineering.</p>
+            </div>
+            <div class="list-group-item p-3 bg-transparent">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-sparkles text-primary me-2"></i> New Specialization Added</h6>
+                <small class="text-muted">1 day ago</small>
+              </div>
+              <p class="mb-1 text-muted small">DevOps Engineering specialization profile has been updated with K8s keyword checks.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT APP MODAL -->
+  <div class="modal fade" id="aboutModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" style="font-family:'Outfit',sans-serif;"><i class="fa-solid fa-circle-info text-primary me-2"></i> About ATS Checker</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4 text-center">
+          <div class="brand-icon mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.5rem; border-radius: 14px; background: linear-gradient(135deg, #635BFF, #3B82F6); color: #FFF; display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-file-circle-check"></i>
+          </div>
+          <h4 class="fw-bold" style="font-family:'Outfit',sans-serif;">ATS Checker v3.0</h4>
+          <p class="text-muted small">AI-Powered Resume Evaluation & Examiner Coaching System</p>
+          <hr>
+          <div class="text-start small text-muted">
+            <p><strong>Backend:</strong> Java Spring Boot REST API</p>
+            <p><strong>Database:</strong> Persistent File-based H2 Database</p>
+            <p><strong>Frontend:</strong> HTML5, CSS3 Custom Theme System, Vanilla JS</p>
+            <p><strong>AI Engine:</strong> Integrated Keyword Scanner & Gemini LLM Coach</p>
+          </div>
+          <button class="btn btn-primary w-100 rounded-pill font-semibold mt-3" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI SUGGESTION DETAIL MODAL -->
+  <div class="modal fade" id="suggestionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" id="sug-modal-title" style="font-family:'Outfit',sans-serif;">AI Recommendation Detail</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div id="sug-modal-content" class="text-muted small">
+            <!-- Dynamic content -->
+          </div>
+          <button class="btn btn-primary w-100 rounded-pill font-semibold mt-3" onclick="openUploadModal(); bootstrap.Modal.getInstance(document.getElementById('suggestionModal')).hide();">Re-scan Resume Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING & TERMINAL SCANNING OVERLAY -->
+  <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; flex-direction: column;">
+    <div class="terminal-card shadow-lg" style="width: 95%; max-width: 580px; background: #0F172A; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; overflow: hidden; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+      <!-- Terminal Header -->
+      <div class="d-flex align-items-center justify-content-between px-3 py-2" style="background: #1E293B; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div class="d-flex gap-2">
+          <span style="width:12px; height:12px; border-radius:50%; background:#EF4444; display:inline-block;"></span>
+          <span style="width:12px; height:12px; border-radius:50%; background:#F59E0B; display:inline-block;"></span>
+          <span style="width:12px; height:12px; border-radius:50%; background:#10B981; display:inline-block;"></span>
+        </div>
+        <div class="text-muted small fw-bold" style="font-size:0.75rem;">gemini-1.5-pro-ai-examiner.sh</div>
+        <div style="width: 40px;"></div>
+      </div>
+      <!-- Terminal Body / Console -->
+      <div id="terminal-console" class="p-3 scroller" style="height: 260px; overflow-y: auto; color: #38BDF8; font-size: 0.82rem; line-height: 1.6; text-align: left;">
+        <!-- Filled dynamically by JS -->
+      </div>
+    </div>
+    <!-- Bottom Spinner & Status -->
+    <div class="text-center mt-3 text-white">
+      <div class="spinner-border text-primary mb-2" role="status" style="width: 2.2rem; height: 2.2rem; border-width: 0.25em;"></div>
+      <div class="fw-bold fs-6" style="font-family: 'Outfit', sans-serif;">Gemini AI Scanning & Evaluating Resume...</div>
+      <div class="text-muted small mt-1">This may take up to 5-10 seconds.</div>
+    </div>
+  </div>
+
+  <!-- Javascript Library CDNs -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom JS Application logic -->
+  <script src="js/app.js"></script>
+
+  <script>
+    function openUploadModal() {
+      const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+      modal.show();
+    }
+    function syncModalFile(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        document.getElementById('modal-file-details').innerHTML = `<i class="fa-solid fa-circle-check"></i> Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        document.getElementById('modal-file-details').classList.remove('d-none');
+        // Sync to main file input
+        const mainInput = document.getElementById('file-input');
+        mainInput.files = input.files;
+        handleFileSelect(file);
+      }
+    }
+    function scrollToSection(id) {
+      showSection('dashboard-section');
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  </script>
+</body>
+</html>
