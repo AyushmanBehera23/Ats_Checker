@@ -389,8 +389,6 @@ async function analyzeResume() {
     }
   }, 450);
 
-  }, 450);
-
   try {
     const response = await fetch("/api/resumes/analyze", {
       method: "POST",
