@@ -896,10 +896,6 @@ async function loadReportDetails(id) {
     console.error("Report details error:", error);
   }
 }
-  } catch (error) {
-    console.error("Report detail lookup failed:", error);
-  }
-}
 
 // Chart.js Building
 function buildCharts(recentData) {
