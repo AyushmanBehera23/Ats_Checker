@@ -1165,10 +1165,10 @@ async function checkAiStatus() {
     const badge = document.getElementById("ai-status-badge");
     const statusText = document.getElementById("ai-panel-status");
     if (data.aiEnabled) {
-      badge.style.display = "block";
+      if (badge) badge.style.display = "block";
       if (statusText) statusText.innerText = "Powered by Gemini 2.0 Flash";
     } else {
-      badge.style.display = "none";
+      if (badge) badge.style.display = "none";
       if (statusText) statusText.innerText = "AI key not configured — chat still works!";
     }
   } catch (e) {
