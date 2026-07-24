@@ -928,26 +928,30 @@ async function loadDashboardData() {
 
     // Populate Recent Evaluations Column on Dashboard
     const recentListEl = document.getElementById("recent-evaluations-list");
-    if (recentListEl && data.recentAnalyses.length > 0) {
+    if (recentListEl) {
       recentListEl.innerHTML = "";
-      data.recentAnalyses.slice(0, 3).forEach(row => {
-        const item = document.createElement("div");
-        item.className = "recent-item";
-        let badgeClass = "badge-green";
-        if (row.score < 55) badgeClass = "badge-red";
-        else if (row.score < 75) badgeClass = "badge-orange";
+      if (!data.recentAnalyses || data.recentAnalyses.length === 0) {
+        recentListEl.innerHTML = `<div class="text-center py-4 text-muted small">No evaluations yet. Upload your first resume to see reports here!</div>`;
+      } else {
+        data.recentAnalyses.slice(0, 3).forEach(row => {
+          const item = document.createElement("div");
+          item.className = "recent-item";
+          let badgeClass = "badge-green";
+          if (row.score < 55) badgeClass = "badge-red";
+          else if (row.score < 75) badgeClass = "badge-orange";
 
-        item.innerHTML = `
-          <div class="file-icon-square pdf-red"><i class="fa-solid fa-file-pdf"></i></div>
-          <div class="flex-grow-1">
-            <div class="file-title text-truncate" style="max-width: 160px;" title="${row.filename}">${row.filename}</div>
-            <div class="file-subtitle">${row.specializationName}</div>
-          </div>
-          <div class="score-badge ${badgeClass}">${row.score}</div>
-          <div class="file-time">${formatTimeAgo(row.createdAt)}</div>
-        `;
-        recentListEl.appendChild(item);
-      });
+          item.innerHTML = `
+            <div class="file-icon-square pdf-red"><i class="fa-solid fa-file-pdf"></i></div>
+            <div class="flex-grow-1">
+              <div class="file-title text-truncate" style="max-width: 160px;" title="${row.filename}">${row.filename}</div>
+              <div class="file-subtitle">${row.specializationName}</div>
+            </div>
+            <div class="score-badge ${badgeClass}">${row.score}</div>
+            <div class="file-time">${formatTimeAgo(row.createdAt)}</div>
+          `;
+          recentListEl.appendChild(item);
+        });
+      }
     }
 
     // Build Analytics Charts
