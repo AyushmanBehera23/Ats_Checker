@@ -310,10 +310,70 @@
             </div>
 
             <div class="row g-3" id="specializations-grid">
-              <!-- Dynamically populated 6 specialization cards -->
-              <div class="text-center py-4">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted mt-2">Loading specializations...</p>
+              <div class="col-lg-4 col-md-6 col-sm-12" data-spec-id="1" data-spec-name="java developer" data-spec-cat="backend">
+                <div class="card-domain-spec" id="spec-1" onclick="selectSpecialization(1)" style="--cat-color: #f89820">
+                  <div class="domain-icon-wrapper"><i class="fa-brands fa-java"></i></div>
+                  <div class="flex-grow-1">
+                    <div class="domain-title">Java Developer</div>
+                    <div class="domain-badge"><span class="demand-dot dot-green"></span> High Demand</div>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12" data-spec-id="2" data-spec-name="cloud engineer" data-spec-cat="cloud">
+                <div class="card-domain-spec" id="spec-2" onclick="selectSpecialization(2)" style="--cat-color: #22c55e">
+                  <div class="domain-icon-wrapper"><i class="fa-solid fa-cloud"></i></div>
+                  <div class="flex-grow-1">
+                    <div class="domain-title">Cloud Engineer</div>
+                    <div class="domain-badge"><span class="demand-dot dot-green"></span> High Demand</div>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12" data-spec-id="3" data-spec-name="devops engineer" data-spec-cat="devops">
+                <div class="card-domain-spec" id="spec-3" onclick="selectSpecialization(3)" style="--cat-color: #a855f7">
+                  <div class="domain-icon-wrapper"><i class="fa-solid fa-gears"></i></div>
+                  <div class="flex-grow-1">
+                    <div class="domain-title">DevOps Engineer</div>
+                    <div class="domain-badge"><span class="demand-dot dot-orange"></span> Medium Demand</div>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12" data-spec-id="4" data-spec-name="software engineer" data-spec-cat="backend">
+                <div class="card-domain-spec" id="spec-4" onclick="selectSpecialization(4)" style="--cat-color: #635bff">
+                  <div class="domain-icon-wrapper"><i class="fa-solid fa-code"></i></div>
+                  <div class="flex-grow-1">
+                    <div class="domain-title">Software Engineer</div>
+                    <div class="domain-badge"><span class="demand-dot dot-green"></span> High Demand</div>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12" data-spec-id="5" data-spec-name="data analyst" data-spec-cat="data">
+                <div class="card-domain-spec" id="spec-5" onclick="selectSpecialization(5)" style="--cat-color: #f43f5e">
+                  <div class="domain-icon-wrapper"><i class="fa-solid fa-chart-bar"></i></div>
+                  <div class="flex-grow-1">
+                    <div class="domain-title">Data Analyst</div>
+                    <div class="domain-badge"><span class="demand-dot dot-green"></span> High Demand</div>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12" data-spec-id="6" data-spec-name="frontend developer" data-spec-cat="frontend">
+                <div class="card-domain-spec" id="spec-6" onclick="selectSpecialization(6)" style="--cat-color: #38bdf8">
+                  <div class="domain-icon-wrapper"><i class="fa-solid fa-palette"></i></div>
+                  <div class="flex-grow-1">
+                    <div class="domain-title">Frontend Developer</div>
+                    <div class="domain-badge"><span class="demand-dot dot-green"></span> High Demand</div>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                </div>
               </div>
             </div>
           </div>
@@ -1308,7 +1368,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <!-- Custom JS Application logic -->
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=1.0.3"></script>
 
   <script>
     function openUploadModal() {
