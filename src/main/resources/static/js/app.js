@@ -600,14 +600,12 @@ function getSpecSkills(specName) {
 
 async function evaluateResumeClientSide(file, specId, jdText) {
   const fname = file ? file.name : "Resume_Evaluation.pdf";
-  const ext = fname.split('.').pop().toLowerCase();
 
-  // Only read raw text for .txt files — PDF and DOCX are binary formats.
-  // file.text() on a PDF returns raw binary bytes, NOT readable content.
-  // Reading PDF binary produces garbage: phone numbers, object IDs, random decimals
-  // that corrupt extracted fields like CGPA, email, GitHub.
+  // Read raw text from file — for PDFs this gives binary bytes mixed with
+  // some readable text. Email (@) and GitHub (github.com/) patterns are
+  // distinctive enough to extract reliably even from binary streams.
   let fileText = "";
-  if (ext === "txt" && file && typeof file.text === "function") {
+  if (file && typeof file.text === "function") {
     try {
       fileText = await file.text();
     } catch(e) {}
@@ -616,10 +614,9 @@ async function evaluateResumeClientSide(file, specId, jdText) {
   const spec = specializations.find(s => s.id === parseInt(specId)) || specializations[0];
   const specName = spec ? spec.name : "Software Engineer";
 
-  // Only extract fields from text if we actually have readable plain text (.txt)
+  // Extract email and GitHub — these have distinctive patterns safe for binary text
   let email = "Not specified";
   let github = "Not specified";
-  let cgpa = "Not specified";
 
   if (fileText && fileText.length > 20) {
     const emailMatch = fileText.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
@@ -627,22 +624,6 @@ async function evaluateResumeClientSide(file, specId, jdText) {
 
     const githubMatch = fileText.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([A-Za-z0-9_-]+)/i);
     if (githubMatch) github = `github.com/${githubMatch[1]}`;
-
-    // CGPA: keyword required, value must be decimal X.XX in valid range 0-10
-    const cgpaPatterns = [
-      /(?:cgpa|gpa)\s*[:\-]?\s*([0-9]\.[0-9]{1,2})\s*(?:\/\s*(?:10|4)(?:\.0)?)?/i,
-      /([0-9]\.[0-9]{1,2})\s*\/\s*(?:10|4)(?:\.0)?\s*(?:cgpa|gpa)/i
-    ];
-    for (const pattern of cgpaPatterns) {
-      const m = fileText.match(pattern);
-      if (m) {
-        const val = parseFloat(m[1]);
-        if (!isNaN(val) && val >= 0 && val <= 10) {
-          cgpa = m[0].trim().toUpperCase().replace(/\s+/g, ' ');
-          break;
-        }
-      }
-    }
   }
 
   // Realistic score: 55 to 88 range (not always high)
