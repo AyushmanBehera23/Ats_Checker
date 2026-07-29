@@ -666,7 +666,7 @@ async function evaluateResumeClientSide(file, specId, jdText) {
     candidateEmail: email,
     candidateGithub: github,
     candidateName: "Candidate Profile",
-    cgpa: cgpa,
+    cgpa: "Not specified",
     projectsCount: Math.floor(Math.random() * 4) + 1,
     measurableOutcomesCount: Math.floor(Math.random() * 5) + 1,
     measurableOutcomesSummary: `${Math.floor(Math.random() * 5) + 1} Impact Metric(s) Found: Quantified results detected in project descriptions.`,
